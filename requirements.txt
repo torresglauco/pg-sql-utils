@@ -1,0 +1,28 @@
+# PostgreSQL Utility Scripts Requirements
+
+# Database connectivity
+psycopg2-binary==2.9.7
+
+# Monitoring and metrics
+prometheus-client==0.17.1
+requests==2.31.0
+
+# Data processing
+pandas==2.1.0
+numpy==1.25.0
+
+# Configuration management
+pyyaml==6.0.1
+configparser==6.0.0
+
+# Web framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+
+# Utilities
+click==8.1.7
+tabulate==0.9.0
+colorama==0.4.6
+
+# Optional: For advanced features
+APScheduler==3.10.4  # For scheduling

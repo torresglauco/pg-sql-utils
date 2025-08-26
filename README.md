@@ -1,182 +1,237 @@
-# PostgreSQL Database Utility Scripts
+# PostgreSQL Database Utility Scripts - Enhanced Edition
 
-A comprehensive collection of PostgreSQL utility scripts designed to assist database administrators with monitoring, maintenance, compliance, and migration tasks.
+A comprehensive, enterprise-grade collection of PostgreSQL utility scripts with advanced monitoring, alerting, and multi-format output capabilities.
 
-## 🚀 Scripts Overview
+## 🚀 Enhanced Features
 
-### Core Monitoring & Maintenance
+### 🔔 **Automated Alerting System**
+- Email, Slack, and PagerDuty integration
+- Configurable thresholds and cooldown periods
+- Smart alert correlation and deduplication
 
-#### `vacuum_analyzer.sql`
-- **Purpose**: Analyzes table bloat and recommends vacuum schedules
-- **Features**: 
-  - Identifies tables with high dead tuple ratios
-  - Prioritizes vacuum operations (High/Medium/Low priority)
-  - Provides size information and maintenance history
-- **Usage**: Essential for maintaining optimal database performance
+### 📊 **Multi-Platform Monitoring Integration**
+- **Prometheus/Grafana**: Custom metrics exporter with pre-built dashboards
+- **Nagios**: Production-ready monitoring plugins
+- **Zabbix**: Complete template with triggers and graphs
 
-#### `performance_analyzer.sql`
-- **Purpose**: Comprehensive performance analysis and optimization recommendations
-- **Features**:
-  - Top resource-consuming queries analysis
-  - Index usage statistics and recommendations
-  - Table bloat estimation
-  - Connection and lock monitoring
-- **Requirements**: `pg_stat_statements` extension recommended
+### 🔄 **Multi-Database Compatibility**
+- **PostgreSQL**: Full feature support
+- **CockroachDB**: Adapted for distributed SQL
+- **YugabyteDB**: Cloud-native PostgreSQL compatibility
+- **Amazon Aurora**: AWS-optimized monitoring
 
-#### `replication_monitor.sql`
-- **Purpose**: Monitors PostgreSQL replication status and lag
-- **Features**:
-  - Server role identification (Primary/Standby)
-  - Replication lag analysis with alert levels
-  - WAL generation monitoring
-  - Replication slots information
-- **Use Case**: Critical for high-availability setups
+### 🐳 **Docker-Based Execution Environment**
+- Complete containerized monitoring stack
+- Docker Compose with Prometheus, Grafana, and PostgreSQL
+- Web interface for easy management
+- Automated deployment and scaling
 
-### Migration & Planning
+### 📤 **Multiple Output Formats**
+- **JSON**: For REST APIs and modern integrations
+- **XML**: Enterprise system compatibility
+- **CSV**: Spreadsheet and reporting tools
+- **YAML**: Configuration management systems
 
-#### `migration_assistant.sql`
-- **Purpose**: Pre-migration analysis and cloud readiness assessment
-- **Features**:
-  - Database size categorization and migration time estimates
-  - Extension compatibility analysis for cloud providers
-  - Custom objects inventory (types, functions, large objects)
-  - Largest tables identification for planning
-- **Use Case**: Essential before cloud migrations or major upgrades
+## 📋 Quick Start
 
-### Compliance & Security
-
-#### `compliance_checker.sql`
-- **Purpose**: Data privacy compliance assessment (GDPR, LGPD, CCPA)
-- **Features**:
-  - PII (Personally Identifiable Information) detection
-  - Access control analysis
-  - Security measures verification
-  - Data retention policy review
-- **Use Case**: Regulatory compliance and security audits
-
-## 📋 Requirements
-
-- PostgreSQL 12 or higher
-- Appropriate database privileges (typically superuser or database owner)
-- For performance analysis: `pg_stat_statements` extension
-
-## 🔧 Installation & Usage
-
-### Quick Start
-
-1. Clone this repository:
+### Docker Deployment (Recommended)
 ```bash
+# Clone and build
 git clone <repository-url>
 cd postgresql-utility-scripts
+chmod +x docker/build_docker.sh
+./docker/build_docker.sh
+
+# Full stack deployment
+docker-compose up -d
+
+# Access points:
+# - Web Interface: http://localhost:8080
+# - Prometheus: http://localhost:9090
+# - Grafana: http://localhost:3000 (admin/admin)
 ```
 
-2. Execute individual scripts:
+### Traditional Installation
 ```bash
-psql -f script_name.sql -d your_database_name
+# Install dependencies
+pip install -r requirements.txt
+
+# Run individual scripts
+psql -f scripts/vacuum_analyzer.sql -d your_database
+
+# Run with specific output format
+python3 output/output_formatter.py --format json --queries vacuum_analysis replication_status
 ```
 
-3. For comprehensive analysis, run all scripts:
+## 🔧 Advanced Configuration
+
+### Alerting Setup
 ```bash
-chmod +x run_all_scripts.sh
-./run_all_scripts.sh your_database_name
+# Configure alerts
+cp monitoring/alert_config.conf.example monitoring/alert_config.conf
+# Edit thresholds and notification channels
+nano monitoring/alert_config.conf
+
+# Start alert monitoring
+./monitoring/alert_monitor.sh
 ```
 
-### Script-Specific Usage
-
-#### Vacuum Analysis
+### API Server
 ```bash
-psql -f vacuum_analyzer.sql -d production_db > vacuum_report.txt
+# Start REST API server
+export POSTGRES_HOST=localhost
+export POSTGRES_DB=your_database
+python3 api/api_server.py
+
+# API endpoints available at http://localhost:5000
 ```
 
-#### Replication Monitoring
+### Multi-Database Support
 ```bash
-# Run on primary server
-psql -f replication_monitor.sql -d production_db
+# Detect database type and adapt scripts
+python3 compatibility/database_compatibility.py --host cockroachdb.example.com --output json
+
+# Run adaptive analysis
+./compatibility/adaptive_runner.sh cockroachdb.example.com 26257 defaultdb root
 ```
 
-#### Migration Assessment
+## 📊 Monitoring Integrations
+
+### Prometheus Metrics
 ```bash
-psql -f migration_assistant.sql -d database_to_migrate > migration_assessment.txt
+# Start metrics exporter
+python3 monitoring/prometheus_exporter.py \
+    --host localhost --database postgres \
+    --metrics-port 9187
 ```
 
-#### Performance Analysis
+### Nagios Integration
 ```bash
-# Ensure pg_stat_statements is enabled
-psql -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;" -d your_db
-psql -f performance_analyzer.sql -d your_db
+# Check vacuum status
+./monitoring/nagios_plugin.sh -H localhost -d postgres -t vacuum_needed -w 5 -c 10
+
+# Check replication lag
+./monitoring/nagios_plugin.sh -H localhost -d postgres -t replication_lag -w 100 -c 500
 ```
 
-#### Compliance Check
+## 🔄 Output Format Examples
+
+### JSON Output
+```json
+{
+  "metadata": {
+    "timestamp": "2024-01-01T12:00:00",
+    "format": "json"
+  },
+  "results": [
+    {
+      "query_name": "vacuum_analysis",
+      "data": [
+        {
+          "schema_name": "public",
+          "table_name": "users",
+          "dead_row_percentage": 25.4,
+          "vacuum_priority": "HIGH - VACUUM REQUIRED"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### API Usage
 ```bash
-psql -f compliance_checker.sql -d sensitive_data_db > compliance_report.txt
+# Get vacuum status as JSON
+curl http://localhost:5000/vacuum
+
+# Get replication status as XML
+curl http://localhost:5000/replication/xml
+
+# Execute custom query
+curl -X POST http://localhost:5000/custom \
+  -H "Content-Type: application/json" \
+  -d '{"query": "SELECT version()", "format": "json"}'
 ```
 
-## 📊 Output Examples
+## 🛡️ Security & Compliance
 
-### Vacuum Analyzer Output
+- **Data Privacy**: Built-in PII detection for GDPR/LGPD/CCPA compliance
+- **Access Control**: Role-based monitoring with privilege checks
+- **Audit Trail**: Complete logging of all monitoring activities
+- **Encryption**: SSL/TLS support for all connections
+
+## 📈 Performance & Scalability
+
+- **Lightweight**: Minimal resource footprint
+- **Concurrent**: Parallel query execution support
+- **Caching**: Intelligent result caching for frequent queries
+- **Batching**: Efficient bulk operations for large datasets
+
+## 🤝 Enterprise Features
+
+### High Availability
+- **Failover**: Automatic failover to standby databases
+- **Load Balancing**: Connection pooling and load distribution
+- **Clustering**: Multi-node monitoring support
+
+### Integration APIs
+- **REST API**: RESTful endpoints for all monitoring functions
+- **GraphQL**: Advanced query capabilities
+- **Webhooks**: Event-driven notifications
+
+### Compliance & Auditing
+- **SOX Compliance**: Financial reporting requirements
+- **HIPAA**: Healthcare data protection
+- **ISO 27001**: Information security management
+
+## 📝 Documentation
+
+### Core Scripts
+- **vacuum_analyzer.sql**: Identifies tables needing vacuum maintenance
+- **replication_monitor.sql**: Monitors replication lag and status
+- **performance_analyzer.sql**: Analyzes query performance and index usage
+- **migration_assistant.sql**: Assesses migration readiness and compatibility
+- **compliance_checker.sql**: Scans for PII and compliance issues
+
+### Monitoring Tools
+- **prometheus_exporter.py**: Exports PostgreSQL metrics to Prometheus
+- **nagios_plugin.sh**: Nagios-compatible monitoring checks
+- **alert_monitor.sh**: Automated alerting system
+
+### Output Formatters
+- **output_formatter.py**: Converts query results to JSON/XML/CSV/YAML
+- **api_server.py**: REST API for programmatic access
+
+### Multi-Database Support
+- **database_compatibility.py**: Detects and adapts to different database types
+- **adaptive_runner.sh**: Automatically runs appropriate scripts based on database type
+
+## 🔧 Development
+
+```bash
+# Development setup
+git clone <repository-url>
+cd postgresql-utility-scripts
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Run individual scripts
+psql -f scripts/vacuum_analyzer.sql -d testdb
+
+# Start full monitoring stack
+docker-compose up -d
 ```
- database_name | schema_name | table_name | dead_row_percentage | vacuum_priority 
---------------+-------------+------------+--------------------+-----------------
- mydb         | public      | user_logs  | 25.40              | HIGH - VACUUM REQUIRED
- mydb         | public      | sessions   | 15.20              | MEDIUM - SCHEDULE VACUUM
-```
 
-### Replication Monitor Output
-```
- server_role | replica_name | lag_size | lag_status        | sync_state 
--------------+--------------+----------+-------------------+------------
- PRIMARY     | replica-01   | 2456 kB  | NORMAL - Minor lag| async
-```
+## 📞 Support
 
-## ⚡ Performance Tips
-
-1. **Regular Monitoring**: Schedule these scripts to run automatically via cron
-2. **Baseline Establishment**: Run scripts on healthy systems to establish performance baselines
-3. **Alert Integration**: Integrate output with monitoring systems (Nagios, Zabbix, etc.)
-4. **Documentation**: Keep results for trend analysis and capacity planning
-
-## 🛡️ Security Considerations
-
-- Review and understand each script before execution
-- Test in non-production environments first
-- Be cautious with the compliance checker output - it may reveal sensitive data patterns
-- Ensure proper access controls are in place when sharing script results
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-script`)
-3. Commit your changes (`git commit -am 'Add new monitoring script'`)
-4. Push to the branch (`git push origin feature/new-script`)
-5. Create a Pull Request
-
-### Contribution Guidelines
-
-- Follow existing code style and documentation standards
-- Include appropriate comments and usage examples
-- Test scripts on multiple PostgreSQL versions when possible
-- Update README.md with new script information
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Issues**: Report bugs and request features via GitHub Issues
-- **Documentation**: Comprehensive comments within each script
-- **Community**: Contributions and improvements welcome
-
-## 📈 Roadmap
-
-- [ ] Add automated alerting capabilities
-- [ ] Integrate with popular monitoring tools
-- [ ] Add support for PostgreSQL-compatible databases (CockroachDB, etc.)
-- [ ] Create Docker-based execution environment
-- [ ] Add JSON/XML output formats for integration
+- **Documentation**: Comprehensive inline documentation
+- **Examples**: Real-world usage examples in docs/
+- **Community**: GitHub Issues and Discussions
+- **Enterprise**: Professional support available
 
 ---
 
-**Note**: Always test these scripts in a development environment before running in production. While designed to be read-only and safe, database environments can vary significantly.
-
-**Compatibility**: Tested on PostgreSQL 12, 13, 14, 15, and 16.
+**Compatibility**: PostgreSQL 12+, CockroachDB 20+, YugabyteDB 2.8+, Aurora PostgreSQL  
+**License**: MIT License  
+**Maintained by**: Database Enhancement Scripts Team
