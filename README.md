@@ -1,206 +1,182 @@
-# PostgreSQL Database Administration Scripts
+# PostgreSQL Database Utility Scripts
 
-A comprehensive collection of PostgreSQL administration and monitoring scripts designed for database administrators, developers, and DevOps engineers.
+A comprehensive collection of PostgreSQL utility scripts designed to assist database administrators with monitoring, maintenance, compliance, and migration tasks.
 
-## 📋 Overview
+## 🚀 Scripts Overview
 
-This repository contains enhanced PostgreSQL scripts that help with database administration, performance monitoring, security auditing, and optimization tasks. All scripts are compatible with PostgreSQL 12+ and include detailed documentation and best practices.
+### Core Monitoring & Maintenance
 
-## 🚀 Scripts Included
+#### `vacuum_analyzer.sql`
+- **Purpose**: Analyzes table bloat and recommends vacuum schedules
+- **Features**: 
+  - Identifies tables with high dead tuple ratios
+  - Prioritizes vacuum operations (High/Medium/Low priority)
+  - Provides size information and maintenance history
+- **Usage**: Essential for maintaining optimal database performance
 
-### Core Administration Scripts
+#### `performance_analyzer.sql`
+- **Purpose**: Comprehensive performance analysis and optimization recommendations
+- **Features**:
+  - Top resource-consuming queries analysis
+  - Index usage statistics and recommendations
+  - Table bloat estimation
+  - Connection and lock monitoring
+- **Requirements**: `pg_stat_statements` extension recommended
 
-#### 1. `find_procedure_with_name.sql`
-**Purpose**: Search for stored procedures and functions by name pattern
-- Find procedures/functions by exact or partial name match
-- Display comprehensive information including arguments, type, owner, and language
-- Show estimated cost and source code size
-- Compatible with all PostgreSQL function types (functions, procedures, aggregates, window functions)
+#### `replication_monitor.sql`
+- **Purpose**: Monitors PostgreSQL replication status and lag
+- **Features**:
+  - Server role identification (Primary/Standby)
+  - Replication lag analysis with alert levels
+  - WAL generation monitoring
+  - Replication slots information
+- **Use Case**: Critical for high-availability setups
 
-**Usage**:
-```sql
--- Edit the script and replace 'your_pattern' with your search term
--- Example: WHERE p.proname ILIKE '%user%'
-```
+### Migration & Planning
 
-#### 2. `find_procedure_with_part_procedure.sql`
-**Purpose**: Advanced search for procedures by name or content
-- Search by partial procedure name
-- Search within procedure source code
-- Multiple search options with detailed results
+#### `migration_assistant.sql`
+- **Purpose**: Pre-migration analysis and cloud readiness assessment
+- **Features**:
+  - Database size categorization and migration time estimates
+  - Extension compatibility analysis for cloud providers
+  - Custom objects inventory (types, functions, large objects)
+  - Largest tables identification for planning
+- **Use Case**: Essential before cloud migrations or major upgrades
 
-**Usage**:
-```sql
--- Replace 'partial_name' with name pattern
--- Replace 'search_text' with text to find in source code
-```
+### Compliance & Security
 
-#### 3. `find_table_with_field.sql`
-**Purpose**: Locate tables containing specific column names
-- Comprehensive column information including data types
-- Primary key and foreign key relationship detection
-- Table size information
-- Support for pattern matching on column names
+#### `compliance_checker.sql`
+- **Purpose**: Data privacy compliance assessment (GDPR, LGPD, CCPA)
+- **Features**:
+  - PII (Personally Identifiable Information) detection
+  - Access control analysis
+  - Security measures verification
+  - Data retention policy review
+- **Use Case**: Regulatory compliance and security audits
 
-**Usage**:
-```sql
--- Replace 'your_column_name' with the column you're searching for
--- Supports ILIKE patterns like '%user%', 'id', etc.
-```
+## 📋 Requirements
 
-#### 4. `size_database.sql`
-**Purpose**: Comprehensive database size analysis
-- Database overview with total size
-- Breakdown by schemas
-- Database growth and performance statistics
-- Connection and activity summary
-- Cache hit ratios and transaction statistics
-
-#### 5. `size_tables.sql`
-**Purpose**: Detailed table size analysis
-- Complete table size breakdown (table, indexes)
-- Row statistics and activity metrics
-- Maintenance information (vacuum, analyze history)
-- Schema summaries and top tables by size
-
-#### 6. `where_trigger_enabled.sql`
-**Purpose**: Comprehensive trigger analysis and management
-- Complete trigger information with status
-- Trigger function analysis
-- Tables with multiple triggers
-- Disabled trigger identification
-
-### Advanced Monitoring Scripts
-
-#### 7. `index_analysis.sql`
-**Purpose**: Index optimization and performance analysis
-- Index usage statistics and recommendations
-- Missing index suggestions
-- Index maintenance guidelines
-
-#### 8. `performance_monitoring.sql`
-**Purpose**: Real-time performance monitoring dashboard
-- Database performance overview
-- Lock analysis and blocking queries
-- Connection and session monitoring
-- Table performance statistics
-
-#### 9. `security_audit.sql`
-**Purpose**: Security audit and compliance checking
-- User and role privilege analysis
-- Sensitive table identification
-- Function security analysis
-- Security risk assessment
-
-## 🛠️ Installation and Setup
-
-### Prerequisites
 - PostgreSQL 12 or higher
-- Appropriate database permissions for monitoring queries
+- Appropriate database privileges (typically superuser or database owner)
+- For performance analysis: `pg_stat_statements` extension
 
-### Basic Setup
+## 🔧 Installation & Usage
+
+### Quick Start
+
 1. Clone this repository:
 ```bash
-git clone https://github.com/torresglauco/sql.git
-cd sql
+git clone <repository-url>
+cd postgresql-utility-scripts
 ```
 
-2. Connect to your PostgreSQL database:
+2. Execute individual scripts:
 ```bash
-psql -h localhost -U your_username -d your_database
+psql -f script_name.sql -d your_database_name
 ```
 
-3. Run any script:
-```sql
-\i find_procedure_with_name.sql
+3. For comprehensive analysis, run all scripts:
+```bash
+chmod +x run_all_scripts.sh
+./run_all_scripts.sh your_database_name
 ```
 
-## 📖 Usage Guidelines
+### Script-Specific Usage
 
-### General Usage
-1. **Edit before running**: Most scripts contain placeholder values (like 'your_pattern') that need to be replaced
-2. **Review permissions**: Ensure you have appropriate permissions for the operations
-3. **Test on development**: Always test scripts on development environments first
-4. **Understand output**: Review the script comments to understand what each column means
-
-### Performance Considerations
-- Large databases may take longer to execute size analysis scripts
-- Performance monitoring scripts may impact performance on busy systems
-- Consider running during maintenance windows for comprehensive analysis
-
-### Security Considerations
-- Security audit scripts require elevated privileges
-- Review security recommendations carefully before implementing changes
-- Some scripts may expose sensitive information - use appropriate access controls
-
-## 🔧 Customization
-
-### Modifying Search Patterns
-Most scripts use PostgreSQL's ILIKE operator for pattern matching:
-- `%text%` - Contains 'text' anywhere
-- `text%` - Starts with 'text'
-- `%text` - Ends with 'text'
-- `text` - Exact match (case insensitive)
-
-### Adding Custom Filters
-You can enhance scripts with additional WHERE clauses:
-```sql
--- Example: Filter by schema
-AND schemaname = 'public'
-
--- Example: Filter by size
-AND pg_total_relation_size(schemaname||'.'||tablename) > 1048576  -- > 1MB
-
--- Example: Filter by activity
-AND n_live_tup > 1000  -- Tables with more than 1000 rows
+#### Vacuum Analysis
+```bash
+psql -f vacuum_analyzer.sql -d production_db > vacuum_report.txt
 ```
+
+#### Replication Monitoring
+```bash
+# Run on primary server
+psql -f replication_monitor.sql -d production_db
+```
+
+#### Migration Assessment
+```bash
+psql -f migration_assistant.sql -d database_to_migrate > migration_assessment.txt
+```
+
+#### Performance Analysis
+```bash
+# Ensure pg_stat_statements is enabled
+psql -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;" -d your_db
+psql -f performance_analyzer.sql -d your_db
+```
+
+#### Compliance Check
+```bash
+psql -f compliance_checker.sql -d sensitive_data_db > compliance_report.txt
+```
+
+## 📊 Output Examples
+
+### Vacuum Analyzer Output
+```
+ database_name | schema_name | table_name | dead_row_percentage | vacuum_priority 
+--------------+-------------+------------+--------------------+-----------------
+ mydb         | public      | user_logs  | 25.40              | HIGH - VACUUM REQUIRED
+ mydb         | public      | sessions   | 15.20              | MEDIUM - SCHEDULE VACUUM
+```
+
+### Replication Monitor Output
+```
+ server_role | replica_name | lag_size | lag_status        | sync_state 
+-------------+--------------+----------+-------------------+------------
+ PRIMARY     | replica-01   | 2456 kB  | NORMAL - Minor lag| async
+```
+
+## ⚡ Performance Tips
+
+1. **Regular Monitoring**: Schedule these scripts to run automatically via cron
+2. **Baseline Establishment**: Run scripts on healthy systems to establish performance baselines
+3. **Alert Integration**: Integrate output with monitoring systems (Nagios, Zabbix, etc.)
+4. **Documentation**: Keep results for trend analysis and capacity planning
+
+## 🛡️ Security Considerations
+
+- Review and understand each script before execution
+- Test in non-production environments first
+- Be cautious with the compliance checker output - it may reveal sensitive data patterns
+- Ensure proper access controls are in place when sharing script results
 
 ## 🤝 Contributing
 
-We welcome contributions! Please:
-
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-script`)
-3. Commit your changes (`git commit -m 'Add amazing new script'`)
-4. Push to the branch (`git push origin feature/amazing-script`)
-5. Open a Pull Request
+2. Create a feature branch (`git checkout -b feature/new-script`)
+3. Commit your changes (`git commit -am 'Add new monitoring script'`)
+4. Push to the branch (`git push origin feature/new-script`)
+5. Create a Pull Request
 
 ### Contribution Guidelines
-- Follow the existing code style and commenting patterns
-- Include comprehensive comments explaining the script's purpose
+
+- Follow existing code style and documentation standards
+- Include appropriate comments and usage examples
 - Test scripts on multiple PostgreSQL versions when possible
-- Update this README if adding new scripts
+- Update README.md with new script information
 
 ## 📝 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- Original scripts inspired by PostgreSQL community best practices
-- Enhanced for modern PostgreSQL versions (12+)
-- Community feedback and contributions
+- **Issues**: Report bugs and request features via GitHub Issues
+- **Documentation**: Comprehensive comments within each script
+- **Community**: Contributions and improvements welcome
 
-## 📞 Support
+## 📈 Roadmap
 
-For questions, issues, or suggestions:
-- Open an issue on GitHub
-- Check existing issues for similar problems
-- Contribute improvements via pull requests
-
-## 🔄 Version History
-
-### v2.0.0 (Current)
-- Complete rewrite with PostgreSQL 12+ compatibility
-- Added comprehensive commenting and documentation
-- Introduced new scripts for index analysis, performance monitoring, and security auditing
-- Improved error handling and edge cases
-- Enhanced output formatting and readability
-
-### v1.0.0 (Original)
-- Basic PostgreSQL administration scripts
-- Core functionality for procedure, table, and size analysis
+- [ ] Add automated alerting capabilities
+- [ ] Integrate with popular monitoring tools
+- [ ] Add support for PostgreSQL-compatible databases (CockroachDB, etc.)
+- [ ] Create Docker-based execution environment
+- [ ] Add JSON/XML output formats for integration
 
 ---
 
-**Made with ❤️ for the PostgreSQL community**
+**Note**: Always test these scripts in a development environment before running in production. While designed to be read-only and safe, database environments can vary significantly.
+
+**Compatibility**: Tested on PostgreSQL 12, 13, 14, 15, and 16.
